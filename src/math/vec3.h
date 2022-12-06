@@ -1,5 +1,9 @@
 #pragma once
 #include <iostream>
+#include <cstdlib>
+
+const float infinity = std::numeric_limits<float>::infinity();
+const float pi = 3.1415926f;
 
 class vec3
 {
@@ -28,6 +32,14 @@ public:
 	vec3 unitVec() const;
 	float length() const;
 	float lengthSquared() const;
+	inline static vec3 random();
+	inline static vec3 random(float min, float max);
+	static vec3 random_in_unit_sphere();
+
+	static vec3 random_unit_vector()
+	{
+		return random_in_unit_sphere().unitVec();
+	}
 
 	/*_________ Constructors _________*/
 	vec3() : val{ 0, 0, 0 } {}
@@ -73,4 +85,20 @@ inline vec3 operator/(const vec3& v, const float f) {
 }
 inline vec3 operator/(const float f, const vec3& v) {
 	return vec3(v.val[0] / f, v.val[1] / f, v.val[2] / f);
+}
+
+inline float random_float() {
+	// Returns a random real in [0,1).
+	return rand() / (RAND_MAX + 1.0f);
+}
+
+inline float random_float(float min, float max) {
+	// Returns a random real in [min,max).
+	return min + (max - min) * random_float();
+}
+
+inline float clamp(float x, float min, float max) {
+	if (x < min) return min;
+	if (x > max) return max;
+	return x;
 }

@@ -133,6 +133,7 @@
     <ClCompile Include="src\ray\ray.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\camera\camera.h" />
     <ClInclude Include="src\color\color.h" />
     <ClInclude Include="src\math\vec3.h" />
     <ClInclude Include="src\obj\obj.h" />

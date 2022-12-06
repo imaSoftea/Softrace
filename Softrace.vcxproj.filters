@@ -47,5 +47,8 @@
     <ClInclude Include="src\obj\obj_list.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\camera\camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

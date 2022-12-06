@@ -95,3 +95,19 @@ float vec3::lengthSquared() const
 {
 	return val[0] * val[0] + val[1] * val[1] + val[2] * val[2];
 }
+
+inline vec3 vec3::random() {
+	return vec3(random_float(), random_float(), random_float());
+}
+
+inline vec3 vec3::random(float min, float max) {
+	return vec3(random_float(min, max), random_float(min, max), random_float(min, max));
+}
+
+vec3 vec3::random_in_unit_sphere() {
+	while (true) {
+		auto p = random(-1, 1);
+		if (p.lengthSquared() >= 1) continue;
+		return p;
+	}
+}

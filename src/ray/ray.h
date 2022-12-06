@@ -19,10 +19,4 @@ public:
 	ray() {}
 	ray(const point3& origin, const vec3& direction) : ori(origin), dir(direction) {}
 
-
 };
-
-// Contains all Utillity Functions not Contained in the class...
-
-color ray_color(const ray& r);
-float hit_sphere(const point3& center, float radius, const ray& r);
