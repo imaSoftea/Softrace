@@ -2,6 +2,8 @@
 #include "src/color/materials.h"
 #include "src/thread/ctpl_stl.h"
 #include <thread>
+#include <fstream>
+#include <string> 
 
 color ray_color(const ray& r, const obj& world, int depth);
 obj_list random_scene();
@@ -11,11 +13,11 @@ void drawPixel(
 
 int main()
 {
-	//Variables
+    //Variables
     const auto aspect = 16.0f / 9.0f;
-	const int imgWidth = 600;
+    const int imgWidth = 600;
     const int imgHeight = static_cast<int> (imgWidth / aspect);
-    const int samples_per_pixel = 25;
+    const int samples_per_pixel = 30;
     const int maxDepth = 8;
 
     // World Variables
@@ -30,39 +32,56 @@ int main()
 
     camera cam(20.0f, aspect, aperture, dist_to_focus, lookfrom, lookat, vup);
 
-    //Render Process
-	std::cout << "P3\n" << imgWidth << " " << imgHeight << "\n255\n";
+    ctpl::thread_pool threads(std::thread::hardware_concurrency() - 1);
 
-    ctpl::thread_pool threads(std::thread::hardware_concurrency()-1);
+    //Animation Camera
+    int frames = 60;
 
-    for (int j = imgHeight - 1; j >= 0; --j)
-    {   
-        color p[imgWidth];
-        std::vector<std::future<void>> results(imgWidth);
+    for (int i = 0; i < frames; i++)
+    {
+        std::ofstream currentFile;
+        std::string fileName = "frames/";
+        fileName += std::to_string(i);
+        fileName += "frame.ppm";
+        std::cout << "File: " << fileName << "\n";
 
-        // Thread Pooling Start
-        for (int i = 0; i < imgWidth; ++i)
+        //Render Process
+        currentFile.open(fileName, std::ofstream::out);
+        currentFile << "P3\n" << imgWidth << " " << imgHeight << "\n255\n";
+
+        for (int j = imgHeight - 1; j >= 0; --j)
         {
-            
-            results[i] = threads.push([&p, world, i, j, cam, imgHeight](int)
+            color p[imgWidth];
+            std::vector<std::future<void>> results(imgWidth);
+
+            // Thread Pooling Start
+            for (int i = 0; i < imgWidth; ++i)
             {
-                drawPixel(p, samples_per_pixel, world, maxDepth, i, j, cam, imgWidth, imgHeight); 
-            });
+
+                results[i] = threads.push([&p, world, i, j, cam, imgHeight](int)
+                    {
+                        drawPixel(p, samples_per_pixel, world, maxDepth, i, j, cam, imgWidth, imgHeight);
+                    });
+            }
+
+            // Thread Pooling Line Wait
+            for (int i = 0; i < imgWidth; ++i)
+            {
+                results[i].get();
+            }
+
+            // Print Results
+            for (color pixel : p)
+            {
+                write_color(currentFile, pixel, samples_per_pixel);
+            }
+            std::cerr << "Line: " << j << std::endl;
         }
 
-        // Thread Pooling Line Wait
-        for (int i = 0; i < imgWidth; ++i)
-        {
-            results[i].get();
-        }
-
-        // Print Results
-        for (color pixel : p)
-        {
-            //write_color(std::cout, pixel, samples_per_pixel);
-        }
-        std::cerr << "Line: " << j << std::endl;
+        cam.movCam(1, .02f);
+        cam.movCam(0, -0.2f);
     }
+
     return 0;
 }
 

@@ -39,6 +39,11 @@ public:
         return ray(origin + offset, lowerleftcorner + s * horizontal + t * vertical - origin - offset);
     }
 
+    void movCam(int axis , float f)
+    {
+        origin.val[axis] += f;
+    }
+
     private:
 
         point3 origin;
